@@ -296,7 +296,12 @@ contract Scythereum is owned, TokenERC20 {
         require(_amount <= balanceOf[msg.sender]); // can't invest more than you have!
         require(_amount >= balanceOf[msg.sender]/20); // minimum you can give to a project is 5% of your balance and 5% of some flat minimum
         require(_amount >= newMemberAward/20); // donation must be above the flat minimum
-        require(_amount <= projectFundingMinimum/4); // investment can only comprise up to 1/4 the total funding
+
+        uint256 totalAmount = _amount + memberInvestmentRecords[msg.sender][_project].amountInvested;
+        require(totalAmount <= projectFundingMinimum/4); // investment can only comprise up to 1/4 the total funding
+        if (totalAmount > newMemberAward/2) {
+            require(totalAmount < totalInvestedBy[msg.sender]); // you can't invest too much in any one project
+        }
 
         NewInvestment(_project, _amount);
 
