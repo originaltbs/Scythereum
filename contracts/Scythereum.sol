@@ -353,7 +353,9 @@ contract Scythereum is owned, TokenERC20 {
     function reclaimDeactivatedProjectFunds(address _project) public {
         require(projectStatus[_project] == ProjectStatus.Deactivated);
         require(!frozenAccount[msg.sender]);
+        require(memberInvestmentRecords[msg.sender][_project].rewardsReceived==0);
         uint256 reclaimedAmount = memberInvestmentRecords[msg.sender][_project].amountInvested;
+        memberInvestmentRecords[msg.sender][_project].rewardsReceived = reclaimedAmount;
         MemberReclaimedFromDeactiveProject(msg.sender, _project, reclaimedAmount);
         _transfer(_project,msg.sender,reclaimedAmount); // consider consequences of require(tokenActive) in _transfer()
     }
