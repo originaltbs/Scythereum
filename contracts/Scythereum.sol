@@ -299,8 +299,8 @@ contract Scythereum is owned, TokenERC20 {
 
         uint256 totalAmount = _amount + memberInvestmentRecords[msg.sender][_project].amountInvested;
         require(totalAmount <= projectFundingMinimum/4); // investment can only comprise up to 1/4 the total funding
-        if (totalAmount > newMemberAward/2) {
-            require(totalAmount < totalInvestedBy[msg.sender]); // you can't invest too much in any one project
+        if (projectStatus[msg.sender] == ProjectStatus.Completed) {
+            require(totalAmount <= totalProjectFunding[msg.sender]/8); // projects have to spread out their new tokens over at least 8/2=4 projects
         }
 
         NewInvestment(_project, _amount);
