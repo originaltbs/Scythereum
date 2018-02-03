@@ -361,6 +361,7 @@ contract Scythereum is owned, TokenERC20 {
     }
 
     function approxNegativeExpE6(uint256 xe6) internal pure returns (uint256) {
+        require(xe6<=1e6); // x can go from 0 to 1
         // return approximation of 10^6 * exp(-x), given x*10^6
         // piecewise taylor series approximation accurate at about >99% 
         // taylor series at 0 (technically we should expand the taylor series at some positive x_0 even for this first piecewise component)
