@@ -189,12 +189,11 @@ contract Scythereum is owned, TokenERC20 {
 
     /* Initializes contract with initial supply tokens to the creator of the contract */
     function Scythereum(
-        uint256 _initialSupply,
         string tokenName,
         string tokenSymbol,
         uint256 _newMemberAward,
         uint256 _projectFundingMinimum
-    ) TokenERC20(_initialSupply, tokenName, tokenSymbol) public { 
+    ) TokenERC20(newMemberAward*10**uint256(decimals), tokenName, tokenSymbol) public { 
         newMemberAward = _newMemberAward*10**uint256(decimals);
         projectFundingMinimum = _projectFundingMinimum*10**uint256(decimals);
     }
