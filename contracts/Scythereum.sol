@@ -201,12 +201,14 @@ contract Scythereum is owned, TokenERC20 {
 
     event NewMemberAward(uint256 newAward);
     function changeMemberAward(uint256 _newAwardMajorUnits) onlyOwner public {
+        require(_newAwardMajorUnits < 1e6);
         newMemberAward = _newAwardMajorUnits*10**uint256(decimals);
         NewMemberAward(_newAwardMajorUnits);
     }
 
     event NewFundingMinimum(uint256 newMinimum);
     function changeFundingMinimum(uint256 _newMinimumMajorUnits) onlyOwner public {
+        require(_newMinimumMajorUnits < 1e9);
         projectFundingMinimum = _newMinimumMajorUnits*10**uint256(decimals);
         NewFundingMinimum(_newMinimumMajorUnits);
     }
