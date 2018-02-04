@@ -299,17 +299,16 @@ contract Scythereum is owned, TokenERC20 {
         //imposeInactivityPenalty(msg.sender); // TODO: inactivity penalty currently has issues.  Candidate for removal.
         require(now - lastInvestment[msg.sender] < 30 days); // must call payReactivationFee() if inactive for too long
 
-        require(_amount <= balanceOf[msg.sender]); // can't invest more than you have!
+        require(_amount <= balanceOf[msg.sender]); // can't invest more than you have! (Also checked in the _transfer() function)
         require(_amount >= balanceOf[msg.sender]/33); // minimum you can give to a project is 3.3% of your balance and 5% of some flat minimum
         require(_amount >= newMemberAward/20); // donation must be above the flat minimum
 
-        uint256 totalAmount = _amount + memberInvestmentRecords[msg.sender][_project].amountInvested;
-        require(totalAmount <= projectFundingMinimum/4); // investment can only comprise up to 1/4 the total funding
+        uint256 totalAmount = _amount + memberInvestmentRecords[msg.sender][_project].amountInvested; // current + previous investments in project
+        require(totalAmount <= projectFundingMinimum/3); // investment can only comprise up to 1/3 the total funding
         if (projectStatus[msg.sender] == ProjectStatus.Completed) {
             require(totalAmount <= totalProjectFunding[msg.sender]/8); // projects have to spread out their new tokens over at least 8/2=4 projects
+            require(_amount >= totalProjectFunding[msg.sender]/25); // projects have a stricter minimum to avoid "only helping their friends"
         }
-
-        NewInvestment(_project, _amount);
 
         memberInvestmentRecords[msg.sender][_project].amountInvested += _amount;
         memberInvestmentRecords[msg.sender][_project].totalEarlierInvested = totalProjectFunding[_project]; // Should warn member of consequences if they re-invest in a project at a later date.
@@ -320,6 +319,8 @@ contract Scythereum is owned, TokenERC20 {
         totalActiveGiven += _amount;
 
         lastInvestment[msg.sender] = now;
+
+        NewInvestment(_project, _amount);
     }
 
     // Successfull projects must have raised the funding minimum, as well as completed the first milestone
@@ -341,7 +342,7 @@ contract Scythereum is owned, TokenERC20 {
         uint256 newTokens = bonusTokensPlusOriginal(totalProjectFunding[_project], memberInvestmentRecords[msg.sender][_project].totalEarlierInvested, memberInvestmentRecords[msg.sender][_project].amountInvested);
         memberInvestmentRecords[msg.sender][_project].rewardsReceived = newTokens;
         MemberClaimedReward(msg.sender, _project, memberInvestmentRecords[msg.sender][_project].amountInvested, newTokens);
-        mintToken(msg.sender, newTokens); // consider the consequences of require(tokenActive) in mintToken()
+        mintToken(msg.sender, newTokens); // has require(tokenActive) 
     }
 
     // the bonus amount exponentially decreases, until reaching zero for the last tiny bit
