@@ -297,9 +297,10 @@ contract Scythereum is owned, TokenERC20 {
         require(projectStatus[_project] == ProjectStatus.Active);
         require(authenticatedMember[msg.sender] || projectStatus[msg.sender] == ProjectStatus.Completed); // completed projects must invest before they can sell off raised tokens
         //imposeInactivityPenalty(msg.sender); // TODO: inactivity penalty currently has issues.  Candidate for removal.
-        require(now - lastInvestment[msg.sender] < 30 days); // must call payInactivityFee() if inactive for too long
+        require(now - lastInvestment[msg.sender] < 30 days); // must call payReactivationFee() if inactive for too long
+
         require(_amount <= balanceOf[msg.sender]); // can't invest more than you have!
-        require(_amount >= balanceOf[msg.sender]/20); // minimum you can give to a project is 5% of your balance and 5% of some flat minimum
+        require(_amount >= balanceOf[msg.sender]/33); // minimum you can give to a project is 3.3% of your balance and 5% of some flat minimum
         require(_amount >= newMemberAward/20); // donation must be above the flat minimum
 
         uint256 totalAmount = _amount + memberInvestmentRecords[msg.sender][_project].amountInvested;
