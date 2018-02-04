@@ -255,8 +255,10 @@ contract Scythereum is owned, TokenERC20 {
         uint256 rewardsReceived;
     }
 
-    // indexed (firstly) by member
+    // indexed by member then by project 
     mapping (address => mapping (address => InvestmentRecords)) public memberInvestmentRecords; // track member investments and rewards
+
+    // indexed by member 
     mapping (address => uint256) public totalInvestedBy; // total number of tokens the member or project has invested in projects
 
     //indexed by project
