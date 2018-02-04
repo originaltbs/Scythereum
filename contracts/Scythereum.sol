@@ -275,6 +275,7 @@ contract Scythereum is owned, TokenERC20 {
     event NewMemberAdded(address indexed newMemberAddress);
     function addMember(address _member) onlyOwner public {
         require(projectStatus[_member] == ProjectStatus.Unknown); // not a project
+        require(!authenticatedMember[_member]); // not already a member
         authenticatedMember[_member] = true;
         NewMemberAdded(_member);
         mintToken(_member, newMemberAward);
@@ -282,6 +283,7 @@ contract Scythereum is owned, TokenERC20 {
     function addMembers(address[] _members) onlyOwner public {
         for (uint i=0; i<_members.length; i++) {
             require(projectStatus[_members[i]] == ProjectStatus.Unknown); // not a project
+            require(!authenticatedMember[_members[i]]); // not already a member
             authenticatedMember[_members[i]] = true;
             NewMemberAdded(_members[i]);
             mintToken(_members[i], newMemberAward);
