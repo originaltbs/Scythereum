@@ -184,6 +184,7 @@ contract Scythereum is owned, TokenERC20 {
 
     uint256 public newMemberAward;
     uint256 public projectFundingMinimum;
+    uint256 public inactivityTimeLimit = 30 days;
 
     /* events are placed above their associated function */
 
@@ -210,6 +211,12 @@ contract Scythereum is owned, TokenERC20 {
         require(_newMinimumMajorUnits < 1e9);
         projectFundingMinimum = _newMinimumMajorUnits*10**uint256(decimals);
         NewFundingMinimum(_newMinimumMajorUnits);
+    }
+    event NewInactivityTimeLimit(uint256 newTimeLimit);
+    function changeInactivityTimeLimit(uint256 _newTimeLimit) onlyOwner public {
+        require(_newTimeLimit < 180 days && _newTimeLimit > 7 days);
+        inactivityTimeLimit = _newTimeLimit;
+        NewInactivityTimeLimit(_newTimeLimit);
     }
 
     event TokenDisabled(address newTokenAddress);
@@ -297,7 +304,7 @@ contract Scythereum is owned, TokenERC20 {
         require(projectStatus[_project] == ProjectStatus.Active);
         require(authenticatedMember[msg.sender] || projectStatus[msg.sender] == ProjectStatus.Completed); // completed projects must invest before they can sell off raised tokens
         //imposeInactivityPenalty(msg.sender); // TODO: inactivity penalty currently has issues.  Candidate for removal.
-        require(now - lastInvestment[msg.sender] < 30 days); // must call payReactivationFee() if inactive for too long
+        require(now - lastInvestment[msg.sender] < inactivityTimeLimit); // must call payReactivationFee() if inactive for too long
 
         require(_amount <= balanceOf[msg.sender]); // can't invest more than you have! (Also checked in the _transfer() function)
         require(_amount >= balanceOf[msg.sender]/33); // minimum you can give to a project is 3.3% of your balance and 5% of some flat minimum
@@ -438,7 +445,7 @@ contract Scythereum is owned, TokenERC20 {
     function payReactivationFee() public {
         require(authenticatedMember[msg.sender] || projectStatus[msg.sender] == ProjectStatus.Completed);
         require(balanceOf[msg.sender] >= newMemberAward/10);
-        require(now - lastInvestment[msg.sender] >= 30 days); 
+        require(now - lastInvestment[msg.sender] >= inactivityTimeLimit); 
         burn(newMemberAward/10);
         lastInvestment[msg.sender] = now;
     }
