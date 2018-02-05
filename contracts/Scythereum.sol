@@ -438,6 +438,7 @@ contract Scythereum is owned, TokenERC20 {
     function payReactivationFee() public {
         require(authenticatedMember[msg.sender] || projectStatus[msg.sender] == ProjectStatus.Completed);
         require(balanceOf[msg.sender] >= newMemberAward/10);
+        require(now - lastInvestment[msg.sender] >= 30 days); 
         burn(newMemberAward/10);
         lastInvestment[msg.sender] = now;
     }
