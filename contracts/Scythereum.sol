@@ -374,6 +374,7 @@ contract Scythereum is owned, TokenERC20 {
         require(memberInvestmentRecords[msg.sender][_project].rewardsReceived==0);
         uint256 reclaimedAmount = memberInvestmentRecords[msg.sender][_project].amountInvested;
         memberInvestmentRecords[msg.sender][_project].rewardsReceived = reclaimedAmount;
+        memberInvestmentRecords[msg.sender][_project].amountInvested = 0; // in case a project is reactivated, zero out their investment history
         MemberReclaimedFromDeactiveProject(msg.sender, _project, reclaimedAmount);
         _transfer(_project,msg.sender,reclaimedAmount); // consider consequences of require(tokenActive) in _transfer()
     }
@@ -412,7 +413,7 @@ contract Scythereum is owned, TokenERC20 {
         require(!frozenAccount[_recipient]);
         balanceOf[_recipient] += _mintedAmount;
         totalSupply += _mintedAmount;
-        lastInvestment[_recipient] = now;
+        lastInvestment[_recipient] = now; // set to start inactivity timer
         NewTokensMinted(_recipient, _mintedAmount);
         Transfer(0, this, _mintedAmount);
         Transfer(this, _recipient, _mintedAmount);
