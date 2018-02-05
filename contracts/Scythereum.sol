@@ -345,14 +345,6 @@ contract Scythereum is owned, TokenERC20 {
         mintToken(msg.sender, newTokens); // has require(tokenActive) 
     }
 
-    // the bonus amount exponentially decreases, until reaching zero for the last tiny bit
-    function bonusTokensPlusOriginal(uint256 _totalDonations, uint256 _previousDonations, uint256 _newDonation) public pure returns (uint256 tokens) {
-        uint256 previousFractionE6 = _previousDonations * 1e6 / _totalDonations;
-        uint256 newFractionE6 = (_previousDonations + _newDonation) * 1e6 / _totalDonations;
-        // The prefactor is 10^6 * 1/(1-e^-1) and ensures that the last invested "wei" is simply returned without appreciation
-        tokens = 1.581976e6 * _totalDonations * (approxNegativeExpE6(previousFractionE6) - approxNegativeExpE6(newFractionE6)) / 1e12;
-    }
-
     // if a project goes AWOL or violates rules, let people get their investment back
     event ProjectDeactivated(address indexed project, string reason);
     function deactivateProject(address _project, string _reason) onlyOwner public {
@@ -370,6 +362,14 @@ contract Scythereum is owned, TokenERC20 {
         memberInvestmentRecords[msg.sender][_project].rewardsReceived = reclaimedAmount;
         MemberReclaimedFromDeactiveProject(msg.sender, _project, reclaimedAmount);
         _transfer(_project,msg.sender,reclaimedAmount); // consider consequences of require(tokenActive) in _transfer()
+    }
+
+    // the bonus amount exponentially decreases, until reaching zero for the last tiny bit
+    function bonusTokensPlusOriginal(uint256 _totalDonations, uint256 _previousDonations, uint256 _newDonation) public pure returns (uint256 tokens) {
+        uint256 previousFractionE6 = _previousDonations * 1e6 / _totalDonations;
+        uint256 newFractionE6 = (_previousDonations + _newDonation) * 1e6 / _totalDonations;
+        // The prefactor is 10^6 * 1/(1-e^-1) and ensures that the last invested "wei" is simply returned without appreciation
+        tokens = 1.581976e6 * _totalDonations * (approxNegativeExpE6(previousFractionE6) - approxNegativeExpE6(newFractionE6)) / 1e12;
     }
 
     function approxNegativeExpE6(uint256 xe6) internal pure returns (uint256) {
