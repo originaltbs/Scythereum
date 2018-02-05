@@ -348,9 +348,23 @@ contract Scythereum is owned, TokenERC20 {
     // if a project goes AWOL or violates rules, let people get their investment back
     event ProjectDeactivated(address indexed project, string reason);
     function deactivateProject(address _project, string _reason) onlyOwner public {
-        require(projectStatus[_project] == ProjectStatus.Active);
+        require(projectStatus[_project] == ProjectStatus.Active || projectStatus[_project] == ProjectStatus.Completed);
         projectStatus[_project] = ProjectStatus.Deactivated;
         ProjectDeactivated(_project, _reason);
+    }
+    // Undo a project deactivation into the active state (only for emergency use)
+    event ProjectReactivated(address indexed project, string reason);
+    function reactivateProject(address _project, string _reason) onlyOwner public {
+        require(projectStatus[_project] == ProjectStatus.Deactivated);
+        projectStatus[_project] = ProjectStatus.Active;
+        ProjectReactivated(_project, _reason);
+    }
+    // Undo a project deactivation into the completed state (only for emergency use)
+    event ProjectRecompleted(address indexed project, string reason);
+    function recompleteProject(address _project, string _reason) onlyOwner public {
+        require(projectStatus[_project] == ProjectStatus.Deactivated);
+        projectStatus[_project] = ProjectStatus.Completed;
+        ProjectRecompleted(_project, _reason);
     }
 
     event MemberReclaimedFromDeactiveProject(address indexed member, address indexed project, uint256 initialInvestment);
