@@ -1,0 +1,11 @@
+can add members and projects
+can't add duplicate member or project
+can't invest when not a member
+can't invest in nonexistant project
+can invest in active project
+can't close a project early
+can close a project and claim rewards
+can't claim rewards if i never invested
+can't invest after project closed
+projects can transfer tokens but only after investing 50% 
+can deactivate project and reclaim funds

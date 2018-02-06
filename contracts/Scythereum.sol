@@ -359,6 +359,7 @@ contract Scythereum is owned, TokenERC20 {
         projectStatus[_project] = ProjectStatus.Deactivated;
         ProjectDeactivated(_project, _reason);
     }
+
     // Undo a project deactivation into the active state (only for emergency use)
     event ProjectReactivated(address indexed project, string reason);
     function reactivateProject(address _project, string _reason) onlyOwner public {
@@ -366,6 +367,7 @@ contract Scythereum is owned, TokenERC20 {
         projectStatus[_project] = ProjectStatus.Active;
         ProjectReactivated(_project, _reason);
     }
+
     // Undo a project deactivation into the completed state (only for emergency use)
     event ProjectRecompleted(address indexed project, string reason);
     function recompleteProject(address _project, string _reason) onlyOwner public {
@@ -390,8 +392,10 @@ contract Scythereum is owned, TokenERC20 {
     function bonusTokensPlusOriginal(uint256 _totalDonations, uint256 _previousDonations, uint256 _newDonation) public pure returns (uint256 tokens) {
         uint256 previousFractionE6 = _previousDonations * 1e6 / _totalDonations;
         uint256 newFractionE6 = (_previousDonations + _newDonation) * 1e6 / _totalDonations;
-        // The prefactor is 10^6 * 1/(1-e^-1) and ensures that the last invested "wei" is simply returned without appreciation
+        // The prefactor is 10^6 * 1/(1-e^-1) and ensures that the new "wei" is 0
         tokens = 1.581976e6 * _totalDonations * (approxNegativeExpE6(previousFractionE6) - approxNegativeExpE6(newFractionE6)) / 1e12;
+        // The prefactor is e^1) and ensures that the last invested "wei" is simply returned without appreciation. Successful projects generate (e^1-1) wei.
+        tokens = 2718281 *  _totalDonations * (approxNegativeExpE6(previousFractionE6) - approxNegativeExpE6(newFractionE6)) / 1e12;
     }
 
     function approxNegativeExpE6(uint256 xe6) internal pure returns (uint256) {
